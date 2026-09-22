@@ -1,0 +1,96 @@
+# ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+# ║  THE GATE, ON EVERY PUSH — and the receipts are the check's summary, not a log to scroll.     ║
+# ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+#
+# ⛔⛔ THIS RUNS THE CHECKS THAT EXIST, NOT A FLAG THAT DOES NOT. There is no `gro-nass wrap --check`:
+# `wrap` LANDS a commit and its message checks are `--check-message`, which needs a message file that
+# a push does not have. On a push the commits are already made, so what can still be verified is what
+# they carry — attribution stamps, the ledger's hash chain and signatures, and what the gate would say
+# about the commits themselves. Those are `check-stamps`, `verify-chain` and `replay`.
+#
+# ⛔ THE SUMMARY IS THE POINT. A CI step that fails with 400 lines of scrollback is a step people
+# learn to skim. Every command's own receipt goes into $GITHUB_STEP_SUMMARY, which GitHub renders on
+# the checks tab — so the verdict is the first thing a reviewer sees, not something they go and find.
+#
+# ⚠️ IT DOES NOT INSTALL A KEY AND CANNOT SIGN. CI holds no owner key by design; a workflow that
+# could sign rows would be a workflow whose token is the owner's identity. This verifies what is
+# already signed and refuses what is unsigned when it should not be.
+name: gro-nass
+description: >-
+  Run the change harness on every push: refuse attribution stamps, verify the ledger's hash chain and
+  signatures, and replay recent commits through the gate. Every receipt lands in the check summary,
+  so the verdict is the first thing a reviewer sees rather than something they scroll a log to find.
+  For repositories gated by gro-nass.
+author: gro-nass
+
+# ⛔ THE MARKETPLACE LISTING IS THESE TWO KEYS. GitHub renders the icon and colour on the Actions
+# marketplace card; `shield` is the one that reads as a gate rather than as a test runner.
+branding:
+  icon: shield
+  color: purple
+
+inputs:
+  version:
+    description: The gro-nass version to run. Pin it — an action that floats changes its verdict under you.
+    required: false
+    default: latest
+  replay:
+    description: How many recent commits to replay through the gate. 0 skips the replay.
+    required: false
+    default: "20"
+  fail-on-refusal:
+    description: Whether a refusal fails the check. Set false to observe before you enforce.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: gro-nass
+      shell: bash
+      env:
+        GRO_NASS_VERSION: ${{ inputs.version }}
+        GRO_NASS_REPLAY: ${{ inputs.replay }}
+        GRO_NASS_FAIL: ${{ inputs.fail-on-refusal }}
+      run: |
+        set -uo pipefail
+        S="${GITHUB_STEP_SUMMARY:-/dev/stdout}"
+        echo "## gro-nass" >> "$S"
+        echo "" >> "$S"
+        # ⛔ THE VERSION IS RECORDED BEFORE ANYTHING RUNS. A receipt that does not say which build
+        # produced it cannot be compared with the next one.
+        RESOLVED="$(npx --yes gro-nass@"$GRO_NASS_VERSION" --version 2>/dev/null | tail -1 || echo "$GRO_NASS_VERSION")"
+        echo "\`gro-nass@${RESOLVED}\` · commit \`${GITHUB_SHA:0:10}\`" >> "$S"
+        echo "" >> "$S"
+
+        rc=0
+        run_check () {
+          # $1 = heading, rest = argv
+          local title="$1"; shift
+          local out
+          out="$(npx --yes gro-nass@"$GRO_NASS_VERSION" "$@" 2>&1)"
+          local code=$?
+          [ "$code" -ne 0 ] && rc=1
+          {
+            echo "### ${title} — $( [ "$code" -eq 0 ] && echo PASS || echo REFUSED )"
+            echo ""
+            echo '```'
+            # ⚠️ TAIL, NOT HEAD. A refusal puts its verdict last; the first 40 lines of a refused run
+            # are the work that led to it and say nothing about why it stopped.
+            echo "$out" | tail -40
+            echo '```'
+            echo ""
+          } >> "$S"
+        }
+
+        run_check "attribution stamps" check-stamps
+        run_check "ledger chain and signatures" verify-chain
+        if [ "${GRO_NASS_REPLAY}" != "0" ]; then
+          run_check "replay of the last ${GRO_NASS_REPLAY} commit(s)" replay --last "${GRO_NASS_REPLAY}" --no-verify
+        fi
+
+        if [ "$rc" -ne 0 ] && [ "$GRO_NASS_FAIL" != "true" ]; then
+          echo "> \`fail-on-refusal: false\` — a refusal was recorded above and this check is not failing on it." >> "$S"
+          rc=0
+        fi
+        exit "$rc"

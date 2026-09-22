@@ -1,0 +1,22 @@
+{
+  "name": "gro-nass",
+  "version": "0.5.2",
+  "description": "Write the claim before you land it, run the refuse-check before you say it is done, and read your own refusals. For repositories gated by gro-nass.",
+  "author": {
+    "name": "gro-nass",
+    "url": "https://gro-nass.com"
+  },
+  "homepage": "https://gro-nass.com",
+  "repository": "https://github.com/mwinanselite-del/gro-nass-shelves",
+  "license": "SEE LICENSE IN LICENSE",
+  "keywords": [
+    "commit",
+    "gate",
+    "pre-registration",
+    "code-review",
+    "ci"
+  ],
+  "skills": [
+    "./skills/gro-nass"
+  ]
+}

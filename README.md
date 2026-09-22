@@ -1,0 +1,62 @@
+# gro-nass — the shelves
+
+The agent listings and the GitHub Action for [`gro-nass`](https://www.npmjs.com/package/gro-nass),
+a change harness that refuses a commit rather than fixing it up afterwards: write the claim before
+you land it, run the refuse-check before you say it is done, and read your own refusals.
+
+| listing | path | convention |
+|---|---|---|
+| Claude Code plugin | `claude-code/` | `.claude-plugin/plugin.json` + `skills/gro-nass/SKILL.md` |
+| Cursor rule | `cursor/` | `.cursor/rules/gro-nass.mdc` |
+| Codex / AGENTS.md | `codex/` | `AGENTS.md` |
+| GitHub Action | `github-action/` | `action.yml`, marketplace branding |
+
+## Install
+
+Copy the directory your tool reads into your repository:
+
+```sh
+cp -r claude-code/.claude-plugin claude-code/skills  .      # Claude Code
+cp -r cursor/.cursor                                  .      # Cursor
+cp    codex/AGENTS.md                                 .      # Codex / AGENTS.md
+```
+
+The Action runs the gate on every push and puts each receipt in `$GITHUB_STEP_SUMMARY`, so the
+verdict is the first thing a reviewer sees rather than something they scroll a log to find:
+
+```yaml
+- uses: mwinanselite-del/gro-nass-shelves/github-action@v0.5.2
+  with:
+    version: "0.5.2"   # pin it — an action that floats changes its verdict under you
+    replay: "20"            # 0 to skip
+    fail-on-refusal: "true"
+```
+
+It runs the checks that exist. There is no `gro-nass wrap --check`: `wrap` lands a commit, and its
+message checks are `--check-message`, which needs a message file a push does not have. On a push the
+commits are already made, so what remains verifiable is what they carry — `check-stamps`,
+`verify-chain` and `replay`. CI holds no owner key and cannot sign; this verifies what is already
+signed.
+
+## These files are generated
+
+Every file here is written by one generator in the harness repository from a single source, and a
+test there regenerates them in memory and refuses its own tree if any byte differs. **Edits made here
+are overwritten**, so a change belongs in the source rather than in this repository. That is not
+bureaucracy: three marketplaces carrying three slowly diverging copies of one instruction is the
+exact failure this arrangement exists to prevent.
+
+## Licence, and the paid tier
+
+[Elastic License 2.0](LICENSE) — the full text is in `LICENSE` at the root of this repository. In
+short: you may use, copy, modify and redistribute it, but you may not provide it to others as a
+hosted or managed service, and you may not remove or circumvent its licence-key functionality.
+
+`gro-nass` itself is free and on npm. The **loop** — the paid tier, which proposes mechanical fixes
+on a branch and merges nothing — is licensed separately and its source is not in this repository or
+in the published package. `gro-nass unlock <key>` is the door.
+
+## What is not here
+
+No gate source, no loop source, no ledger, no specs, no tests. This repository is the shelf, not the
+shop: seven files, all of them either generated from the harness's source or copied from it verbatim.
