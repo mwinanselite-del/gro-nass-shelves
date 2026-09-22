@@ -1,6 +1,6 @@
 {
   "name": "gro-nass",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Write the claim before you land it, run the refuse-check before you say it is done, and read your own refusals. For repositories gated by gro-nass.",
   "author": {
     "name": "gro-nass",

@@ -25,9 +25,9 @@ The Action runs the gate on every push and puts each receipt in `$GITHUB_STEP_SU
 verdict is the first thing a reviewer sees rather than something they scroll a log to find:
 
 ```yaml
-- uses: mwinanselite-del/gro-nass-shelves/github-action@v0.5.2
+- uses: mwinanselite-del/gro-nass-shelves/github-action@v0.5.3
   with:
-    version: "0.5.2"   # pin it — an action that floats changes its verdict under you
+    version: "0.5.3"   # pin it — an action that floats changes its verdict under you
     replay: "20"            # 0 to skip
     fail-on-refusal: "true"
 ```
