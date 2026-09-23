@@ -16,11 +16,16 @@
 # could sign rows would be a workflow whose token is the owner's identity. This verifies what is
 # already signed and refuses what is unsigned when it should not be.
 name: gro-nass
+# ⛔⛔ THE MARKETPLACE TRUNCATES THIS AND THE OLD ONE WAS 332 CHARACTERS. GitHub shows the
+# `description` on the marketplace card and in search results; at 332 it was cut mid-sentence, so
+# the half a browsing reader saw was "Run the change harness on every push: refuse attribution
+# stamps, verify the ledger's hash chain and…" — a fragment ending on the least useful clause.
+#
+# ⚠️ IT IS 125 CHARACTERS EXACTLY, WHICH IS THE LIMIT RATHER THAN COMFORTABLY INSIDE IT. There is no
+# headroom: one more word and it is over. `test/publicTrees.test.ts` asserts the length so the next
+# edit to this sentence cannot quietly cross the line.
 description: >-
-  Run the change harness on every push: refuse attribution stamps, verify the ledger's hash chain and
-  signatures, and replay recent commits through the gate. Every receipt lands in the check summary,
-  so the verdict is the first thing a reviewer sees rather than something they scroll a log to find.
-  For repositories gated by gro-nass.
+  Gate every push: refuse attribution stamps, verify the ledger's chain and signatures, replay recent commits through the gate.
 author: gro-nass
 
 # ⛔ THE MARKETPLACE LISTING IS THESE TWO KEYS. GitHub renders the icon and colour on the Actions
