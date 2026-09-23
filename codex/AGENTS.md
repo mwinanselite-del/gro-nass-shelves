@@ -60,6 +60,20 @@ A refusal is the most specific feedback you will get, and it is addressed to you
 - **Do not re-run hoping for a different answer.** These checks are deterministic. A run that goes
   green after a run that went red means something changed — know what.
 
+**When you admit a defect, its class comes from a declared list.** A `## DEFECT` block naming a class
+the tool does not declare is refused, and the refusal names it. The list and its definitions are in
+`RULES.md`; `class` used to be free text, and a typo was a new class — one that groups with nothing
+and reads to every later reader as a real finding.
+
+- `scanner-finding` is for automated per-commit rows from a scanner, so bulk machine findings are not
+  filed under a judgement class.
+- `scope-excluded-silently` — a checker ran, reported clean, and its configured scope excluded the
+  subject without saying so.
+- `unbuilt-commitment` — something the plan or the record names as existing does not exist.
+- `contention` — two things ran that could not both run.
+- `teardown-not-guaranteed` — cleanup written where it does not run.
+- `cross-clock` is merged into `wrong-clock`: accepted on read, refused on write.
+
 ## What never goes in a commit message
 
 No attribution trailers. No `Co-Authored-By` naming a tool, no "generated with" line. The record of
